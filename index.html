@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>حصتي</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #090b0b;
+      color: #f4f0e7;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    header {
+      padding: 22px;
+      border-bottom: 1px solid #292b29;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: #e8bd67;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: auto;
+      padding: 25px 16px 80px;
+    }
+
+    .hero {
+      padding: 30px 20px;
+      border: 1px solid #5f4d2c;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #171b1a, #0e1110);
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 8px 0;
+    }
+
+    .gold { color: #e7bd68; }
+
+    button, label.upload {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 19px;
+      cursor: pointer;
+      font-size: 15px;
+      background: linear-gradient(135deg, #f3d58c, #b78435);
+      color: #17130b;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    button.secondary {
+      background: #202523;
+      color: #eee;
+      border: 1px solid #424943;
+    }
+
+    input, select {
+      width: 100%;
+      background: #111514;
+      color: #fff;
+      border: 1px solid #3c443f;
+      border-radius: 9px;
+      padding: 12px;
+      margin-top: 6px;
+    }
+
+    input[type="file"] { display: none; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .notice {
+      background: #171c1a;
+      border: 1px solid #4e422b;
+      border-radius: 14px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #d8d1c0;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(150px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+
+    .day {
+      min-height: 270px;
+      min-width: 150px;
+      background: #101413;
+      border: 1px solid #313834;
+      border-radius: 16px;
+      padding: 10px;
+    }
+
+    .day h3 {
+      color: #e5bd70;
+      margin: 4px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .lesson {
+      background: linear-gradient(145deg, #242a28, #151918);
+      border: 1px solid #665532;
+      border-radius: 13px;
+      padding: 11px;
+      margin-top: 10px;
+      box-shadow: 0 8px 18px #0008;
+      transition: .2s;
+    }
+
+    .lesson:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 25px #000b;
+    }
+
+    .lesson strong { color: #f1cb79; }
+    .lesson small { color: #bcb8ae; display: block; margin-top: 5px; }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .actions button {
+      font-size: 12px;
+      padding: 7px 9px;
+    }
+
+    dialog {
+      background: #141816;
+      color: white;
+      border: 1px solid #826535;
+      border-radius: 17px;
+      width: min(430px, 90%);
+      padding: 20px;
+    }
+
+    dialog::backdrop { background: #000b; }
+
+    .form-row { margin: 12px 0; }
+
+    @media(max-width: 600px) {
+      h1 { font-size: 26px; }
+      main { padding: 15px 10px; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="logo">حصتي</div>
+  <span>استعمال الزمن الذكي</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div style="font-size:42px">◈</div>
+    <h1>جدولك الدراسي، <span class="gold">بذكاء أكثر</span></h1>
+    <p>صوّر استعمال الزمن، وسنحوّله إلى جدول واضح قابل للتعديل.</p>
+
+    <label class="upload">
+      صوّر أو ارفع جدولك
+      <input id="imageInput" type="file" accept="image/*" capture="environment">
+    </label>
+
+    <div id="ocrStatus"></div>
+  </section>
+
+  <div class="toolbar">
+    <button onclick="openLesson()">＋ إضافة حصة</button>
+    <button class="secondary" onclick="notifyPermission()">تفعيل التنبيهات</button>
+    <button class="secondary" onclick="clearLessons()">مسح الجدول</button>
+  </div>
+
+  <div class="notice">
+    💡 بعد استخراج الجدول، راجع الأوقات والمواد وأضف الأدوات المطلوبة لكل حصة.
+  </div>
+
+  <section id="calendar" class="days"></section>
+</main>
+
+<dialog id="lessonDialog">
+  <h2>إضافة / تعديل حصة</h2>
+
+  <div class="form-row">
+    <label>المادة</label>
+    <input id="subject" placeholder="مثلاً: الرياضيات">
+  </div>
+
+  <div class="form-row">
+    <label>اليوم</label>
+    <select id="day">
+      <option>الإثنين</option>
+      <option>الثلاثاء</option>
+      <option>الأربعاء</option>
+      <option>الخميس</option>
+      <option>الجمعة</option>
+      <option>السبت</option>
+      <option>الأحد</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label>الوقت</label>
+    <input id="time" type="time">
+  </div>
+
+  <div class="form-row">
+    <label>الأدوات المطلوبة</label>
+    <input id="tools" placeholder="كتاب، دفتر، آلة حاسبة">
+  </div>
+
+  <div class="toolbar">
+    <button onclick="saveLesson()">حفظ</button>
+    <button class="secondary" onclick="lessonDialog.close()">إلغاء</button>
+  </div>
+</dialog>
+
+<script>
+  const days = [
+    "الإثنين", "الثلاثاء", "الأربعاء",
+    "الخميس", "الجمعة", "السبت", "الأحد"
+  ];
+
+  let lessons = JSON.parse(localStorage.getItem("hissatiLessons") || "[]");
+  let editingId = null;
+
+  function render() {
+    const calendar = document.getElementById("calendar");
+
+    calendar.innerHTML = days.map(day => {
+      const dayLessons = lessons
+        .filter(x => x.day === day)
+        .sort((a, b) => a.time.localeCompare(b.time));
+
+      return `
+        <div class="day">
+          <h3>${day}</h3>
+          ${dayLessons.length ? dayLessons.map(lesson => `
+            <div class="lesson">
+              <strong>${lesson.subject}</strong>
+              <small>🕒 ${lesson.time}</small>
+              <small>🎒 ${lesson.tools || "لا توجد أدوات"}</small>
+              <div class="actions">
+                <button onclick="editLesson(${lesson.id})">تعديل</button>
+                <button class="secondary" onclick="deleteLesson(${lesson.id})">حذف</button>
+              </div>
+            </div>
+          `).join("") : "<small style='display:block;text-align:center;margin-top:25px'>لا توجد حصص</small>"}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function openLesson(lesson = null) {
+    editingId = lesson?.id || null;
+    document.getElementById("subject").value = lesson?.subject || "";
+    document.getElementById("day").value = lesson?.day || "الإثنين";
+    document.getElementById("time").value = lesson?.time || "08:00";
+    document.getElementById("tools").value = lesson?.tools || "";
+    document.getElementById("lessonDialog").showModal();
+  }
+
+  function saveLesson() {
+    const data = {
+      id: editingId || Date.now(),
+      subject: document.getElementById("subject").value || "حصة جديدة",
+      day: document.getElementById("day").value,
+      time: document.getElementById("time").value,
+      tools: document.getElementById("tools").value
+    };
+
+    if (editingId) {
+      lessons = lessons.map(x => x.id === editingId ? data : x);
+    } else {
+      lessons.push(data);
+    }
+
+    localStorage.setItem("hissatiLessons", JSON.stringify(lessons));
+    document.getElementById("lessonDialog").close();
+    render();
+  }
+
+  function editLesson(id) {
+    openLesson(lessons.find(x => x.id === id));
+  }
+
+  function deleteLesson(id) {
+    lessons = lessons.filter(x => x.id !== id);
+    localStorage.setItem("hissatiLessons", JSON.stringify(lessons));
+    render();
+  }
+
+  function clearLessons() {
+    if (confirm("هل تريد مسح جميع الحصص؟")) {
+      lessons = [];
+      localStorage.removeItem("hissatiLessons");
+      render();
+    }
+  }
+
+  async function notifyPermission() {
+    if (!("Notification" in window)) {
+      alert("المتصفح لا يدعم الإشعارات.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      new Notification("تم تفعيل التنبيهات", {
+        body: "سنذكّرك بحصصك قبل ساعة."
+      });
+    }
+  }
+
+  document.getElementById("imageInput").addEventListener("change", async function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const status = document.getElementById("ocrStatus");
+    status.innerHTML = "<p class='gold'>جارٍ تحليل الصورة…</p>";
+
+    try {
+      const result = await Tesseract.recognize(file, "ara+eng", {
+        logger: message => {
+          if (message.status === "recognizing text") {
+            status.innerHTML =
+              `<p class='gold'>جارٍ التحليل: ${Math.round(message.progress * 100)}%</p>`;
+          }
+        }
+      });
+
+      const text = result.data.text;
+      status.innerHTML =
+        "<p style='color:#9bd18d'>تم تحليل الصورة. راجع الجدول وأضف الحصص أو عدّلها.</p>";
+
+      // مثال أولي بسيط لإضافة النص المستخرج كملاحظة
+      if (text.trim()) {
+        localStorage.setItem("lastOCRText", text);
+      }
+    } catch (error) {
+      status.innerHTML =
+        "<p style='color:#ff9d87'>تعذر تحليل الصورة. حاول بصورة أوضح.</p>";
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
